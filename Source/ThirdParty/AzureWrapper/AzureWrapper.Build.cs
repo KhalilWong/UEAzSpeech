@@ -19,7 +19,7 @@ public class AzureWrapper : ModuleRules
 			}
 		);
 		
-		if (Target.Platform == UnrealTargetPlatform.Win64)
+		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
 		{
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Win",
 				"Microsoft.CognitiveServices.Speech.core.lib"));
