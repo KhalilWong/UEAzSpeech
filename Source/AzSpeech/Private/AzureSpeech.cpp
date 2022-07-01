@@ -29,6 +29,17 @@ void FAzSpeechModule::StartupModule()
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.mas.dll", MasRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.silk_codec.dll", SilkRuntimeLib);
 	LoadDependency(PreDir + "Microsoft.CognitiveServices.Speech.extension.codec.dll", CodecRuntimeLib);
+#elif PLATFORM_LINUX
+	const FString PreDir = FPaths::Combine(
+		*IPluginManager::Get().FindPlugin("AzSpeech")->GetBaseDir(),
+		TEXT("Source/ThirdParty/AzureWrapper/libs/Linux/Runtime/"));
+
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.core.so", CoreRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so", AudioRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.kws.so", KwsRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.lu.so", LuRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.mas.so", MasRuntimeLib);
+	LoadDependency(PreDir + "libMicrosoft.CognitiveServices.Speech.extension.codec.so", CodecRuntimeLib);
 #endif
 }
 
