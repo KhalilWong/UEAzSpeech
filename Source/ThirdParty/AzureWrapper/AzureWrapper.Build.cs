@@ -63,6 +63,14 @@ public class AzureWrapper : ModuleRules
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android",
 				"libMicrosoft.CognitiveServices.Speech.extension.silk_codec.so"));
 		}
+		else if (Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			var dylibPath = Path.Combine(ModuleDirectory, "libs", "Mac", "Runtime",
+				"libMicrosoft.CognitiveServices.Speech.core.dylib");
+			
+			PublicDelayLoadDLLs.Add(dylibPath);
+			RuntimeDependencies.Add(dylibPath);
+		}
 		
 		PublicDependencyModuleNames.AddRange(new[] 
 			{
