@@ -63,6 +63,14 @@ public class AzureWrapper : ModuleRules
 			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "Android",
 				"libMicrosoft.CognitiveServices.Speech.extension.silk_codec.so"));
 		}
+		else if (Target.Platform == UnrealTargetPlatform.IOS)
+		{		
+			AdditionalPropertiesForReceipt.Add("IOSPlugin", 
+				Path.Combine(ModuleDirectory, "AzSpeech_UPL_IOS.xml"));
+			
+			PublicAdditionalLibraries.Add(Path.Combine(ModuleDirectory, "libs", "iOS",
+				"libMicrosoft.CognitiveServices.Speech.core.a"));
+		}
 		
 		PublicDependencyModuleNames.AddRange(new[] 
 			{
