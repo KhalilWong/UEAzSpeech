@@ -65,25 +65,28 @@ public class AzureWrapper : ModuleRules
 		}
 		else if (Target.Platform == UnrealTargetPlatform.Linux)
 		{
-			PublicDelayLoadDLLs.Add("libMicrosoft.CognitiveServices.Speech.core.so");
-			PublicDelayLoadDLLs.Add("libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so");
-			PublicDelayLoadDLLs.Add("libMicrosoft.CognitiveServices.Speech.extension.kws.so");
-			PublicDelayLoadDLLs.Add("libMicrosoft.CognitiveServices.Speech.extension.lu.so");
-			PublicDelayLoadDLLs.Add("libMicrosoft.CognitiveServices.Speech.extension.mas.so");
-			PublicDelayLoadDLLs.Add("libMicrosoft.CognitiveServices.Speech.extension.codec.so");
+			var prePath = Path.Combine(ModuleDirectory, "libs", "Linux", "Runtime");
 			
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", "Runtime",
-				"libMicrosoft.CognitiveServices.Speech.core.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", "Runtime",
-				"libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", "Runtime",
-				"libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", "Runtime",
-				"libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", "Runtime",
-				"libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
-			RuntimeDependencies.Add(Path.Combine(ModuleDirectory, "libs", "Linux", "Runtime",
-				"libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.core.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
+			PublicAdditionalLibraries.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
+				
+			PublicDelayLoadDLLs.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.core.so"));
+			PublicDelayLoadDLLs.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			PublicDelayLoadDLLs.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			PublicDelayLoadDLLs.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			PublicDelayLoadDLLs.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
+			PublicDelayLoadDLLs.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
+			
+			RuntimeDependencies.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.core.so"));
+			RuntimeDependencies.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.audio.sys.so"));
+			RuntimeDependencies.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.kws.so"));
+			RuntimeDependencies.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.lu.so"));
+			RuntimeDependencies.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.mas.so"));
+			RuntimeDependencies.Add(Path.Combine(prePath, "libMicrosoft.CognitiveServices.Speech.extension.codec.so"));
 		}
 		
 		PublicDependencyModuleNames.AddRange(new[] 
