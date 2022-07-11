@@ -22,14 +22,24 @@ namespace AzSpeechWrapper
 		                              const std::string& APIAccessKey,
 		                              const std::string& RegionID,
 		                              const std::string& LanguageID,
-		                              const std::string& VoiceName)
+		                              const std::string& VoiceName,
+		                              const bool bAutoDetectLanguage)
 		{
 			const auto& SpeechConfig = SpeechConfig::FromSubscription(APIAccessKey, RegionID);
 
-			SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
-			SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
+			std::shared_ptr<SpeechSynthesizer> SpeechSynthesizer;
+			if (bAutoDetectLanguage)
+			{
+				SpeechSynthesizer =
+					SpeechSynthesizer::FromConfig(SpeechConfig, AutoDetectSourceLanguageConfig::FromOpenRange());
+			}
+			else
+			{
+				SpeechConfig->SetSpeechSynthesisLanguage(LanguageID);
+				SpeechConfig->SetSpeechSynthesisVoiceName(VoiceName);
 
-			const auto& SpeechSynthesizer = SpeechSynthesizer::FromConfig(SpeechConfig);
+				SpeechSynthesizer = SpeechSynthesizer::FromConfig(SpeechConfig);
+			}
 
 			if (const auto& SpeechSynthesisResult = SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
 				SpeechSynthesisResult->Reason == ResultReason::SynthesizingAudioCompleted)
@@ -50,6 +60,7 @@ namespace AzSpeechWrapper
 		static void AsyncTextToVoice(const FString& TextToConvert,
 		                             const FString& VoiceName,
 		                             const FAzSpeechData Parameters,
+		                             const bool bAutoDetectLanguage,
 		                             FTextToVoiceDelegate Delegate)
 		{
 			if (TextToConvert.IsEmpty() || VoiceName.IsEmpty()
@@ -61,56 +72,67 @@ namespace AzSpeechWrapper
 
 			UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - %s: Initializing task"), *FString(__func__));
 
-			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Parameters, TextToConvert, Delegate, VoiceName]
-			{
-				const TFuture<bool> TextToVoiceAsyncWork =
-					Async(EAsyncExecution::Thread, [Parameters, TextToConvert, VoiceName]() -> bool
-					{
-						const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
-						const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
-						const std::string& LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
-						const std::string& VoiceNameStr = TCHAR_TO_UTF8(*VoiceName);
-						const std::string& ToConvertStr = TCHAR_TO_UTF8(*TextToConvert);
+			AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
+			          [Parameters, TextToConvert, Delegate, VoiceName, bAutoDetectLanguage]
+			          {
+				          const TFuture<bool> TextToVoiceAsyncWork =
+					          Async(EAsyncExecution::Thread,
+					                [Parameters, TextToConvert, VoiceName, bAutoDetectLanguage]() -> bool
+					                {
+						                const std::string& APIAccessKeyStr = TCHAR_TO_UTF8(*Parameters.APIAccessKey);
+						                const std::string& RegionIDStr = TCHAR_TO_UTF8(*Parameters.RegionID);
+						                const std::string& LanguageIDStr = TCHAR_TO_UTF8(*Parameters.LanguageID);
+						                const std::string& VoiceNameStr = TCHAR_TO_UTF8(*VoiceName);
+						                const std::string& ToConvertStr = TCHAR_TO_UTF8(*TextToConvert);
 
-						return Standard_Cpp::DoTextToVoiceWork(ToConvertStr, APIAccessKeyStr, RegionIDStr,
-						                                       LanguageIDStr,
-						                                       VoiceNameStr);
-					});
+						                return Standard_Cpp::DoTextToVoiceWork(ToConvertStr,
+						                                                       APIAccessKeyStr,
+						                                                       RegionIDStr,
+						                                                       LanguageIDStr,
+						                                                       VoiceNameStr,
+						                                                       bAutoDetectLanguage);
+					                });
 
-				TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
-				const bool bOutputValue = TextToVoiceAsyncWork.Get();
+				          TextToVoiceAsyncWork.WaitFor(FTimespan::FromSeconds(5));
+				          const bool bOutputValue = TextToVoiceAsyncWork.Get();
 
-				AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
-				{
-					Delegate.Broadcast(bOutputValue);
-				});
+				          AsyncTask(ENamedThreads::GameThread, [bOutputValue, Delegate]
+				          {
+					          Delegate.Broadcast(bOutputValue);
+				          });
 
-				if (bOutputValue)
-				{
-					UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToVoice: Result: Success"));
-				}
-				else
-				{
-					UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToVoice: Result: Error"));
-				}
-			});
+				          if (bOutputValue)
+				          {
+					          UE_LOG(LogAzSpeech, Display, TEXT("AzSpeech - AsyncTextToVoice: Result: Success"));
+				          }
+				          else
+				          {
+					          UE_LOG(LogAzSpeech, Error, TEXT("AzSpeech - AsyncTextToVoice: Result: Error"));
+				          }
+			          });
 		}
 	}
 }
 
 UTextToVoiceAsync* UTextToVoiceAsync::TextToVoiceAsync(const UObject* WorldContextObject, const FString& TextToConvert,
-                                                       const FString& VoiceName, const FAzSpeechData Parameters)
+                                                       const FString& VoiceName, const FAzSpeechData Parameters,
+                                                       const bool bAutoDetectLanguage)
 {
 	UTextToVoiceAsync* TextToVoiceAsync = NewObject<UTextToVoiceAsync>();
 	TextToVoiceAsync->WorldContextObject = WorldContextObject;
 	TextToVoiceAsync->TextToConvert = TextToConvert;
 	TextToVoiceAsync->VoiceName = VoiceName;
 	TextToVoiceAsync->Parameters = Parameters;
+	TextToVoiceAsync->bAutoDetectLanguage = bAutoDetectLanguage;
 
 	return TextToVoiceAsync;
 }
 
 void UTextToVoiceAsync::Activate()
 {
-	AzSpeechWrapper::Unreal_Cpp::AsyncTextToVoice(TextToConvert, VoiceName, Parameters, TaskCompleted);
+	AzSpeechWrapper::Unreal_Cpp::AsyncTextToVoice(TextToConvert,
+	                                              VoiceName,
+	                                              Parameters,
+	                                              bAutoDetectLanguage,
+	                                              TaskCompleted);
 }
