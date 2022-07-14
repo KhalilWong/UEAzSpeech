@@ -16,6 +16,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, Ou
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToStreamDelegate, const TArray<uint8>&, RecognizedStream);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVisemeDelegate, const FVisemeData&, VisemeData);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToWavDelegate, const bool, OutputValue);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWavToTextDelegate, const FString&, RecognizedString);
