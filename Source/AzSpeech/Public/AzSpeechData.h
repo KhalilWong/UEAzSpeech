@@ -10,6 +10,21 @@
  *
  */
 
+ USTRUCT(BlueprintType, Category = "AzSpeech", meta = (DisplayName = "AzSpeechData"))
+ struct AZSPEECH_API FVisemeData
+ {
+ 	GENERATED_USTRUCT_BODY()
+
+ 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech | AzureSettings")
+ 	FString VisemeId;
+
+ 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech | AzureSettings")
+ 	FString VisemeOffset;
+
+ 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AzSpeech | AzureSettings")
+ 	TArray<uint8> VisemeAudio;
+ };
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVoiceToTextDelegate, const FString&, RecognizedString);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTextToVoiceDelegate, const bool, OutputValue);
