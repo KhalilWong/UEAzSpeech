@@ -37,6 +37,11 @@ namespace AzSpeechWrapper
 			const auto& SpeechSynthesizer =
 				SpeechSynthesizer::FromConfig(SpeechConfig,
 				                              AudioConfig::FromStreamOutput(AudioOutputStream::CreatePullStream()));
+			// Subscribes to viseme received event
+			SpeechSynthesizer->VisemeReceived += [&VID, &VOS, SP](const SpeechSynthesisVisemeEventArgs& e)
+			{
+				// The unit of e.AudioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
+			}
 
 			if (const auto& SpeechSynthesisResult =
 					SpeechSynthesizer->SpeakTextAsync(TextToConvert).get();
